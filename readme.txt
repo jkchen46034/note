@@ -23,7 +23,14 @@ $curl -X DELETE -i localhost:8080/notes/1
 $curl -X GET -i localhost:8080/notes 
 null
 
- 
-
-
+jk:note$go test -v
+=== RUN   TestNoteList
+--- PASS: TestNoteList (0.00s)
+=== RUN   TestNoteGet
+--- PASS: TestNoteGet (0.00s)
+=== RUN   TestNoteCreate
+--- PASS: TestNoteCreate (0.00s)
+PASS
+ok      jk.com/note     0.002s
+jk:note$
 
