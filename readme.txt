@@ -1,5 +1,6 @@
 jk:note$pwd
 /home/jk/dev/go/jk.com/note
+$execute db.sql on psql
 $go build
 $go run server.go
 
@@ -30,7 +31,10 @@ jk:note$go test -v
 --- PASS: TestNoteGet (0.00s)
 === RUN   TestNoteCreate
 --- PASS: TestNoteCreate (0.00s)
+=== RUN   TestNoteUpdate
+--- PASS: TestNoteUpdate (0.00s)
+=== RUN   TestNoteDelete
+--- PASS: TestNoteDelete (0.00s)
 PASS
-ok      jk.com/note     0.002s
+ok      jk.com/note     0.003s
 jk:note$
-
