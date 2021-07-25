@@ -35,7 +35,13 @@ var (
 )
 
 type NoteHandler struct {
-	model *model.NoteModel
+	model interface {
+		Create(note_in model.Note) (note model.Note, err error)
+		Get(id int) (note model.Note, err error)
+		List() (notes []model.Note, err error)
+		Update(note_in model.Note) (note model.Note, err error)
+		Delete(id int) (err error)
+	}
 }
 
 func (n *NoteHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
