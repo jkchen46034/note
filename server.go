@@ -1,18 +1,26 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
 	"regexp"
 	"strconv"
 
-	"jk.com/note/data"
+	_ "github.com/lib/pq"
+	"jk.com/note/model"
 )
 
 func main() {
+	db, err := sql.Open("postgres", "postgres://postgres:postgres@localhost/notedb?sslmode=disable&binary_parameters=yes")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	noteModel := model.NoteModel{db}
+	noteHandler := &NoteHandler{&noteModel}
+
 	mux := http.NewServeMux()
-	noteHandler := &NoteHandler{}
 	mux.Handle("/notes", noteHandler)
 	mux.Handle("/notes/", noteHandler)
 	log.Fatal(http.ListenAndServe(":8080", mux))
@@ -26,7 +34,9 @@ var (
 	deleteNoteRe = regexp.MustCompile(`^\/notes\/(\d+)$`)
 )
 
-type NoteHandler struct{}
+type NoteHandler struct {
+	model *model.NoteModel
+}
 
 func (n *NoteHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "application/json")
@@ -50,8 +60,7 @@ func (n *NoteHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (n *NoteHandler) List(w http.ResponseWriter, r *http.Request) {
-	note := data.Note{}
-	notes, err := note.List()
+	notes, err := n.model.List()
 	if err != nil {
 		internalServerError(w, r)
 		return
@@ -67,9 +76,8 @@ func (n *NoteHandler) Get(w http.ResponseWriter, r *http.Request) {
 		notFound(w, r)
 		return
 	}
-	note := data.Note{}
 	id, _ := strconv.Atoi(matches[1])
-	err := note.Get(id)
+	note, err := n.model.Get(id)
 	if err != nil {
 		internalServerError(w, r)
 		return
@@ -80,12 +88,12 @@ func (n *NoteHandler) Get(w http.ResponseWriter, r *http.Request) {
 }
 
 func (n *NoteHandler) Create(w http.ResponseWriter, r *http.Request) {
-	var note data.Note
-	if err := json.NewDecoder(r.Body).Decode(&note); err != nil {
+	var note_in model.Note
+	if err := json.NewDecoder(r.Body).Decode(&note_in); err != nil {
 		internalServerError(w, r)
 		return
 	}
-	err := note.Create()
+	note, err := n.model.Create(note_in)
 	if err != nil {
 		internalServerError(w, r)
 		return
@@ -101,13 +109,15 @@ func (n *NoteHandler) Update(w http.ResponseWriter, r *http.Request) {
 		notFound(w, r)
 		return
 	}
-	var note data.Note
-	if err := json.NewDecoder(r.Body).Decode(&note); err != nil {
+	var note_in model.Note
+	if err := json.NewDecoder(r.Body).Decode(&note_in); err != nil {
 		internalServerError(w, r)
 		return
 	}
 	id, _ := strconv.Atoi(matches[1])
-	err := note.Update(id)
+	note_in.ID = id
+
+	note, err := n.model.Update(note_in)
 	if err != nil {
 		internalServerError(w, r)
 		return
@@ -123,9 +133,8 @@ func (n *NoteHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		notFound(w, r)
 		return
 	}
-	note := data.Note{}
 	id, _ := strconv.Atoi(matches[1])
-	err := note.Delete(id)
+	err := n.model.Delete(id)
 	if err != nil {
 		internalServerError(w, r)
 		return
