@@ -7,8 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	handler "jk.com/note/handlers"
-	model "jk.com/note/models"
+	handler "jk.com/note/handler"
+	model "jk.com/note/model"
 )
 
 type mockNoteModel struct{}

@@ -6,8 +6,7 @@ import (
 	"regexp"
 	"strconv"
 
-	_ "github.com/lib/pq"
-	"jk.com/note/models"
+	"jk.com/note/model"
 )
 
 var (

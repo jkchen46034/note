@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	_ "github.com/lib/pq"
-	"jk.com/note/handlers"
-	"jk.com/note/models"
+	"jk.com/note/handler"
+	"jk.com/note/model"
 )
 
 func main() {
@@ -20,6 +20,5 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.Handle("/notes", noteHandler)
-	mux.Handle("/notes/", noteHandler)
 	log.Fatal(http.ListenAndServe(":8080", mux))
 }
